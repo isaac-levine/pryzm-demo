@@ -2,9 +2,14 @@ import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // App Router configuration
   experimental: {
-    serverComponentsExternalPackages: ["fs", "path", "readline"],
+    // External packages for server components
+    serverComponentsExternalPackages: ["csv-parse"],
   },
+  // Remove the conflicting configurations:
+  // serverExternalPackages: ["csv-parse"],
+  // transpilePackages: ["csv-parse"],
 };
 
 export default nextConfig;
