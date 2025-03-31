@@ -17,12 +17,32 @@ export default function WelcomeScreen({ onSearch }: WelcomeScreenProps) {
     setIsLoading(false);
   };
 
+  const searchExamples = [
+    {
+      name: "Construction",
+      description: "Find construction companies and contractors",
+    },
+    {
+      name: "Technology",
+      description: "Search for IT and technology service providers",
+    },
+    {
+      name: "Healthcare",
+      description: "Discover medical suppliers and healthcare providers",
+    },
+    {
+      name: "www.example.com",
+      description: "Find entities by their website domain",
+    },
+  ];
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
-      <h2 className="text-2xl font-bold mb-4">What are you looking for?</h2>
+      <h2 className="text-2xl font-bold mb-4">Explore SAM.gov Entities</h2>
       <p className="text-gray-400 mb-8 max-w-md">
-        Search for companies by name, website, or keywords. We'll help you find
-        what you need in the SAM.gov database.
+        Search for companies registered with the U.S. government. Find
+        contractors, grantees, and other entities in the System for Award
+        Management database.
       </p>
 
       <form onSubmit={handleSubmit} className="w-full max-w-xl">
@@ -44,30 +64,26 @@ export default function WelcomeScreen({ onSearch }: WelcomeScreenProps) {
         </div>
       </form>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
-        <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
-          <h3 className="font-semibold mb-2">Search by Company Name</h3>
-          <p className="text-sm text-gray-400">
-            Find specific companies by their legal business name
-          </p>
-        </div>
-        <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
-          <h3 className="font-semibold mb-2">Search by Website</h3>
-          <p className="text-sm text-gray-400">
-            Enter a company's website to find their registration
-          </p>
-        </div>
-        <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
-          <h3 className="font-semibold mb-2">Search by Keywords</h3>
-          <p className="text-sm text-gray-400">
-            Use keywords to find companies in specific industries
-          </p>
-        </div>
-        <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-800">
-          <h3 className="font-semibold mb-2">Search by Location</h3>
-          <p className="text-sm text-gray-400">
-            Find companies registered in specific states
-          </p>
+      <div className="mt-12">
+        <h3 className="text-lg font-semibold mb-4">Try searching for:</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+          {searchExamples.map((example) => (
+            <button
+              key={example.name}
+              onClick={() => {
+                setSearchQuery(example.name);
+                onSearch(example.name);
+              }}
+              className="flex flex-col items-start p-4 bg-gray-900/50 rounded-xl border border-gray-800 hover:bg-gray-800 transition-colors text-left"
+            >
+              <span className="font-medium text-white mb-1">
+                {example.name}
+              </span>
+              <span className="text-sm text-gray-400">
+                {example.description}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

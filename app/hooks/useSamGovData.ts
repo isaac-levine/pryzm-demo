@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { searchEntities, EntitySearchResult } from "../utils/samGovApi";
+import { searchEntities, filterEntities, SamEntity } from "../utils/samGovData";
 import { Filters } from "../components/Sidebar";
 
 interface SamGovState {
-  results: EntitySearchResult[];
+  results: SamEntity[];
   loading: boolean;
   error: string | null;
   filters: Filters;
@@ -17,7 +17,11 @@ export function useSamGovData() {
     if (typeof window !== "undefined") {
       const savedState = localStorage.getItem("samGovState");
       if (savedState) {
-        return JSON.parse(savedState);
+        try {
+          return JSON.parse(savedState);
+        } catch (e) {
+          console.error("Failed to parse saved state:", e);
+        }
       }
     }
     return {
@@ -53,22 +57,34 @@ export function useSamGovData() {
 
     try {
       const data = await searchEntities(query);
-      setState((prev) => ({
-        ...prev,
-        results: data,
-        loading: false,
-        searchHistory: [
-          query,
-          ...prev.searchHistory.filter((h) => h !== query).slice(0, 4),
-        ],
-      }));
+
+      // Only update state if we got results
+      if (data.length > 0) {
+        setState((prev) => ({
+          ...prev,
+          results: data,
+          loading: false,
+          searchHistory: [
+            query,
+            ...prev.searchHistory.filter((h) => h !== query).slice(0, 4),
+          ],
+        }));
+      } else {
+        // Show a message if no results were found
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          results: [],
+          error: "No matching entities found. Try a different search term.",
+        }));
+      }
     } catch (err) {
+      console.error("Search error:", err);
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: "Failed to fetch results. Please try again.",
+        error: "Failed to search entities. Using example data.",
       }));
-      console.error(err);
     }
   };
 
@@ -97,21 +113,7 @@ export function useSamGovData() {
     }));
   };
 
-  const filteredResults = state.results.filter((entity) => {
-    if (
-      state.filters.entityType.length > 0 &&
-      !state.filters.entityType.includes(entity.entityStructure)
-    ) {
-      return false;
-    }
-    if (
-      state.filters.state.length > 0 &&
-      !state.filters.state.includes(entity.address.stateOrProvinceCode)
-    ) {
-      return false;
-    }
-    return true;
-  });
+  const filteredResults = filterEntities(state.results, state.filters);
 
   return {
     ...state,
