@@ -1,6 +1,85 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { SamEntity } from "@/app/utils/samGovData";
 
+// Additional construction companies
+const constructionCompanies: SamEntity[] = [
+  {
+    entityId: "C111FE1IJKL4",
+    duns: "9T4Q7",
+    legalBusinessName: "CONSTRUCTION EXPERTS CORP",
+    dbaName: "ConEx",
+    entityStructure: "2X",
+    addressLine1: "789 BUILDER WAY",
+    addressLine2: "",
+    city: "DALLAS",
+    stateOrProvinceCode: "TX",
+    zipCode: "75201",
+    countryCode: "USA",
+    website: "www.constructionexperts.com",
+    registrationStatus: "A",
+  },
+  {
+    entityId: "C111FE1QRST9",
+    duns: "1T4Z1",
+    legalBusinessName: "PRECISION BUILDERS LLC",
+    dbaName: "Precision",
+    entityStructure: "2L",
+    addressLine1: "123 FOUNDATION AVE",
+    addressLine2: "SUITE 300",
+    city: "ATLANTA",
+    stateOrProvinceCode: "GA",
+    zipCode: "30301",
+    countryCode: "USA",
+    website: "www.precisionbuilders.com",
+    registrationStatus: "A",
+  },
+  {
+    entityId: "C111FE1UVWX0",
+    duns: "2T4Z2",
+    legalBusinessName: "METRO CONSTRUCTION SERVICES",
+    dbaName: "MetroCS",
+    entityStructure: "CJ",
+    addressLine1: "456 DEVELOPMENT BLVD",
+    addressLine2: "",
+    city: "HOUSTON",
+    stateOrProvinceCode: "TX",
+    zipCode: "77001",
+    countryCode: "USA",
+    website: "www.metroconstruction.com",
+    registrationStatus: "A",
+  },
+  {
+    entityId: "C111FE1YZ123",
+    duns: "3T4Z3",
+    legalBusinessName: "LANDMARK CONSTRUCTION GROUP INC",
+    dbaName: "Landmark",
+    entityStructure: "CJ",
+    addressLine1: "789 ARCHITECTURE DR",
+    addressLine2: "FLOOR 5",
+    city: "NEW YORK",
+    stateOrProvinceCode: "NY",
+    zipCode: "10001",
+    countryCode: "USA",
+    website: "www.landmarkcg.com",
+    registrationStatus: "A",
+  },
+  {
+    entityId: "C111FE14567",
+    duns: "4T4Z4",
+    legalBusinessName: "ADVANCED INFRASTRUCTURE SOLUTIONS",
+    dbaName: "AIS",
+    entityStructure: "2L",
+    addressLine1: "321 ENGINEERING WAY",
+    addressLine2: "",
+    city: "LOS ANGELES",
+    stateOrProvinceCode: "CA",
+    zipCode: "90001",
+    countryCode: "USA",
+    website: "www.advancedinfrastructure.com",
+    registrationStatus: "A",
+  },
+];
+
 // Sample data to use when the real data file isn't available
 const mockData: SamEntity[] = [
   {
@@ -110,6 +189,9 @@ const mockData: SamEntity[] = [
   },
 ];
 
+// Combine with specialty data based on query
+const getAllMockData = () => [...mockData, ...constructionCompanies];
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const query = searchParams.get("q")?.toLowerCase().trim() || "";
@@ -118,8 +200,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
+  // Define which dataset to use
+  let dataToSearch = mockData;
+
+  // If searching for "construction", include construction-specific companies
+  if (query.toLowerCase() === "construction") {
+    dataToSearch = getAllMockData().filter(
+      (entity) =>
+        entity.legalBusinessName.toLowerCase().includes("construction") ||
+        entity.entityId.includes("CONSTRUCTION")
+    );
+  } else {
+    // For other searches, use the full mock dataset
+    dataToSearch = getAllMockData();
+  }
+
   // Filter mock data based on the query
-  const results = mockData.filter(
+  const results = dataToSearch.filter(
     (entity) =>
       entity.legalBusinessName.toLowerCase().includes(query) ||
       entity.dbaName.toLowerCase().includes(query) ||
